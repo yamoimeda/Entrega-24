@@ -1,7 +1,6 @@
 import React, {createContext, useEffect, useState} from "react";
 import Cookies from "js-cookie";
 import fire from './firebase';
-import { Redirect } from "react-router";
 import {setup} from './views/control/zebrasetuo';
 export const AuthContext = createContext({
   user: null, isAuth: null, login: () => {
@@ -48,7 +47,7 @@ function AuthProvider({ children }) {
     });
 
       fire.auth().onAuthStateChanged(user =>{
-        const userCookie = Cookies.get('user');
+        //const userCookie = Cookies.get('user');
         if (user){
           login(user.refreshToken,user.uid)
          

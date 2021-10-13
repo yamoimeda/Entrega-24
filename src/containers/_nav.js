@@ -29,8 +29,8 @@ const _nav =  [
   icon: 'cil-inbox',
 },{
   _tag: 'CSidebarNavItem',
-  name: 'Suibir a beetrack',
-  to: '/dash/control/subir_beetrack',
+  name: 'Suibir a fitter',
+  to: '/dash/control/subir_fitter',
   icon: 'cil-inbox',
 },{
   _tag: 'CSidebarNavItem',

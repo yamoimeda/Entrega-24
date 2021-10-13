@@ -67,7 +67,7 @@ class Login extends React.Component {
             this.setState({errorcorreo:err.message,correo:''});
             break;
           case 'auth/wrong-password':
-            this.setState({errorcontrasena:err.messege,contrasena:'' });
+            this.setState({errorcontrasena:err.messege,contrasena:''});
             
             break;
           default:  return;
@@ -79,32 +79,10 @@ class Login extends React.Component {
 
   }
 
-  handleregistro = async () => {
-    
-    this.limpiarerror();
-    fire
-      .auth()
-      .createUserWithEmailAndPassword(this.state.correo,this.state.contrasena)
-      .catch((err) => {
-        switch ( err.code) {
-          case 'auth/email-already-in-use':
-          case 'auth/ivalid-email':
-            this.setState({errorcorreo:err.messege});
-            break;
-          case 'auth/weak-password':
-            this.setState({errorcontrasena:err.messege});
-            break;
-        }
-      })
-      
-      
-
-  }
 
   redirigir = () =>{
     this.setState({loading:true})
     var isauth = Cookies.get("isauth")
-    console.log(isauth);
     if( isauth !==  'true') {
 
       setTimeout(this.redirigir, 2000);

@@ -33,7 +33,7 @@ var setp = true;
               }, function(){alert("Error getting local devices")},"printer");
               
             }, function(error){
-              alert(error);
+              
             })
             setp= false
             

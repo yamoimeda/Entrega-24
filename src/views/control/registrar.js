@@ -72,6 +72,7 @@ class Register extends React.Component {
     }
 
     handleregistro = () => {
+        var nombre = this.state.nombre.replace(/\s/g, '')
         var db = fire.firestore();
         var data = db.collection("usuarios").doc()
         fire
@@ -81,6 +82,7 @@ class Register extends React.Component {
             (user_data) => {
                 data.set({
                     uid: data.id,
+                    clienteid:nombre+data.id.substring(0, 4),
                     tipo:parseInt(this.state.tipo),
                     user_uid: user_data.user.uid,
                     correo: user_data.user.email,

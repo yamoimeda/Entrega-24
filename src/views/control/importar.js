@@ -77,8 +77,7 @@ class importar extends Component {
     var allTextLines = csv.split(/\r\n|\n/);
     
     let confirmados = []
-    let req = ["DIRECCION","NOMBRE PROD","CANTIDAD","FECHA MIN ENTREGA",
-    "FECHA MAX ENTREGA","NOMBRE CONTACTO","TELEFONO","CORREO"]
+    let req = ["DIRECCION","LATITUD","LONGITUD","DESCRIPCION","CANTIDAD","TELEFONO","CORREO","NOMBRE PROD","NOMBRE CONTACTO"]
     var cuenta = 0
     //first line of csv
     var keys = allTextLines.shift().split(',');
@@ -90,7 +89,7 @@ class importar extends Component {
     }
     var faltantes = req.filter((i => a => a !== confirmados[i] || !++i)(0));
     
-    if (cuenta >= 8){
+    if (cuenta >= req.length){
       
       return true
      
@@ -116,8 +115,9 @@ class importar extends Component {
     var allTextLines = csv.split(/\r\n|\n/);
     var lines = [];
 	
-    let requeridos = ["LATITUD","LONGITUD","DIRECCION","NOMBRE PROD","CANTIDAD","FECHA MIN ENTREGA",
-    "FECHA MAX ENTREGA","NOMBRE CONTACTO","TELEFONO","CORREO"]
+    let requeridos =  ["DIRECCION","LATITUD","LONGITUD",
+    "DESCRIPCION","CANTIDAD","TELEFONO","CORREO",
+    "NOMBRE PROD","NOMBRE CONTACTO","FECHA MIN ENTREGA"]
  
     //first line of csv
     var keys = allTextLines.shift().split(',');
@@ -145,7 +145,7 @@ class importar extends Component {
     if (this.state.files.length === 0 ){
       
         <CAlert color="danger">
-        This is a danger alert — check it out!
+        Porfavor seleccione un archivo
       </CAlert> ;
     } else {
 
@@ -154,15 +154,21 @@ class importar extends Component {
 
            
 
-
+            
             var pedidos = this.state.data
             var token_uid = this.state.token_uid
             var today = new Date();
+            const manana = new Date(today)
+            manana.setDate(manana.getDate() + 1)
             var dd = String(today.getDate()).padStart(2, '0');
             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
             var yyyy = today.getFullYear();
 
-            today = dd + '-' + mm + '-' + yyyy;
+            var dd2 = String(manana.getDate()).padStart(2, '0');
+            var mm2 = String(manana.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy2 = manana.getFullYear();
+
+            manana = dd2 + '-' + mm2 + '-' + yyyy2;
 
             var now     = new Date(); 
             var hour    = now.getHours();
@@ -183,7 +189,7 @@ class importar extends Component {
             var dataorden = db.collection("ordenes").doc()
             dataorden.set({
               uid: dataorden.id,
-              nombre: this.state.files[0].name,
+              nombre: this.state.files[0]+" "+today,
               cliente: token_uid,
               ct_origen:'central',
               identificador_contacto: token_uid,
@@ -196,7 +202,7 @@ class importar extends Component {
 
 
             pedidos.forEach((ped) => {
-            
+             
             var data = db.collection("pedidos").doc()
             data.set({
               uid: data.id,
@@ -204,7 +210,7 @@ class importar extends Component {
               ct_origen:'central',
               identificador_contacto: token_uid,
               min_horario: '06:00',
-              max_horario: '20:00',
+              max_horario:'24:00',
               status:0,
               fecha_import: today,
               hora_import:hora,
@@ -240,8 +246,9 @@ class importar extends Component {
     return (
         <div>
           <h5> Campos Requeridos</h5>
-          <h6>DIRECCION, NOMBRE PROD, CANTIDAD, FECHA MIN ENTREGA,
-    FECHA MAX ENTREGA, NOMBRE CONTACTO, TELEFONO, CORREO</h6>
+          <h6>DIRECCION LATITUD LONGITUD DESCRIPCION 
+            CANTIDAD TELEFONO CORREO NOMBRE PROD NOMBRE CONTACTO
+            </h6>
           
           {this.state.alert}
       <Dropzone  className='dropzone'  accept=".csv" onDrop={this.onDrop} >

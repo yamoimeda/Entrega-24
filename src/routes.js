@@ -30,7 +30,7 @@ const routes = [
   { path: '/dash/control/ordenes-dia', name: 'Ordenes por dia', component: Ordenes_dia },
   { path: '/dash/control/ordenes-cliente', name: 'oredenes por cliente', component: Ordenes_cliente },
   { path: '/dash/control/ordenes-status', name: 'oredenes por status', component: Ordenes_status },
-  { path: '/dash/control/subir_beetrack', name: 'subir a beetrack', component: Subir_betrack },
+  { path: '/dash/control/subir_fitter', name: 'subir a beetrack', component: Subir_betrack },
   { path: '/dash/control/Pedidos-orden', name: 'Pedidios de orden', component: Pedidos_orden },
   { path: '/dash/control/camiones', name: 'Camiones', component: Camiones },
 
