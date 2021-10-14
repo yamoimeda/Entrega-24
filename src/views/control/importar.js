@@ -111,33 +111,59 @@ class importar extends Component {
   }
 
   processData(csv) {
-    
+
+    var today = new Date();
+    var manana = new Date(today)
+    manana.setDate(manana.getDate() + 1)
+    var dd2 = String(manana.getDate()).padStart(2, '0');
+    var mm2 = String(manana.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy2 = manana.getFullYear();
+    manana = dd2 + '-' + mm2 + '-' + yyyy2;
+
     var allTextLines = csv.split(/\r\n|\n/);
     var lines = [];
 	
     let requeridos =  ["DIRECCION","LATITUD","LONGITUD",
     "DESCRIPCION","CANTIDAD","TELEFONO","CORREO",
-    "NOMBRE PROD","NOMBRE CONTACTO","FECHA MIN ENTREGA"]
- 
+    "NOMBRE PROD","NOMBRE CONTACTO","FECHA MIN ENTREGA","NOTAS"]
+
     //first line of csv
     var keys = allTextLines.shift().split(',');
-    
-      while (allTextLines.length-1) {
+      while (allTextLines.length) {
         var arr = allTextLines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-       
+        if (arr.length<11){
+          break
+        }
+
         var obj = {};
         for(var i = 0; i < keys.length; i++){
+          
           if (requeridos.includes(keys[i])){
+            if (keys[i] == "FECHA MIN ENTREGA" ){
+              if (keys[i]){
+                obj[keys[i]] = arr[i];
+              }else{
+                obj[keys[i]] = manana;
+              }
+
+              
+            }else{
+              if( arr[i] == undefined){
+                obj[keys[i]] = ".";
+              }else{
+                obj[keys[i]] = arr[i];
+              }
+             
+            }
             
-            obj[keys[i]] = arr[i];
           }
             
 	}
         lines.push(obj);
     }
         this.setState({data:lines})
-        
-    }
+
+  }
     
 
   leerfile = ()=>{
@@ -156,9 +182,10 @@ class importar extends Component {
 
             
             var pedidos = this.state.data
+    
             var token_uid = this.state.token_uid
             var today = new Date();
-            const manana = new Date(today)
+            var manana = new Date(today)
             manana.setDate(manana.getDate() + 1)
             var dd = String(today.getDate()).padStart(2, '0');
             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -167,7 +194,7 @@ class importar extends Component {
             var dd2 = String(manana.getDate()).padStart(2, '0');
             var mm2 = String(manana.getMonth() + 1).padStart(2, '0'); //January is 0!
             var yyyy2 = manana.getFullYear();
-
+            today = dd + '-' + mm + '-' + yyyy;
             manana = dd2 + '-' + mm2 + '-' + yyyy2;
 
             var now     = new Date(); 
@@ -189,7 +216,7 @@ class importar extends Component {
             var dataorden = db.collection("ordenes").doc()
             dataorden.set({
               uid: dataorden.id,
-              nombre: this.state.files[0]+" "+today,
+              nombre: this.state.files[0].name+" "+today,
               cliente: token_uid,
               ct_origen:'central',
               identificador_contacto: token_uid,
@@ -202,8 +229,10 @@ class importar extends Component {
 
 
             pedidos.forEach((ped) => {
+             var consig = ped["DIRECCION"].replace(/"/g, '').replace(/\s/g, '_');
              
             var data = db.collection("pedidos").doc()
+            
             data.set({
               uid: data.id,
               cliente: token_uid,
@@ -215,10 +244,9 @@ class importar extends Component {
               fecha_import: today,
               hora_import:hora,
               orden_uid:dataorden.id,
+              peso:"Sin definir",
+              consignatario: consig,
               ...ped
-          })
-          .then(() => {
-            this.setState({modal:true})
           })
           .catch((error) => {
            

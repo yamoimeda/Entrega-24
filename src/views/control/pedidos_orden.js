@@ -51,7 +51,7 @@ const fields = [
     { key:"TELEFONO" , label: 'Telefono', _style: { width: '20%'} },
     { key:"CORREO" ,label: 'Correo', _style: { width: '20%'} },
     { key:"NOMBRE CONTACTO",label: 'Nombre contacto', _style: { width: '20%'} },
-    { key: "FECHA MAX ENTREGA",label: 'Fecha Max Entrega', _style: { width: '20%'} },
+    { key: "FECHA MIN ENTREGA",label: 'Fecha de Entrega', _style: { width: '20%'} },
     { key:"status",label: 'status', _style: { width: '20%'} },
     {
       key: 'show_details',

@@ -31,6 +31,10 @@ import fire from '../../firebase';
 import { saveAs } from 'file-saver'
 import { object } from 'prop-types';
 import { AuthContext } from "../../Auth";
+import { CSVLink, CSVDownload, } from "react-csv";
+
+
+
 const getBadge = status => {
 
   switch (status) {
@@ -59,177 +63,45 @@ const fields = [
   }
 ]
 
-const subirapi= (data,today)=>{
-var jd= []
-  data.forEach((doc) => {
-
-
-    var stop = {"tags": [
-        {
-          "type": "Type 1",
-          "values": [
-            "Value 1",
-            "Value 2"
-          ]
-        },
-        {
-          "type": "Type 2",
-          "values": [
-            "Value 3",
-            "Value 4"
-          ]
-        }
-      ],
-      "items": [
-        {
-          "code": doc["CODIGO ITEM"],
-          "cost": 0,
-          "quantity": doc["CANTIDAD"],
-          "capacities": [
-            1
-          ],
-          "description": ""
-        }
-      ],
-      "groups": [
-        {
-          "name": today,
-          "names": [
-            "Value One",
-            "Value Two"
-          ]
-        }
-      ],
-      "address": doc["DIRECCION"],
-      "contact": {
-        "name": doc["NOMBRE CONTACTO"],
-        "email":  doc["EMAIL CONTACTO"],
-        "phone":doc["TELEFONO"],
-        "identification": doc["IDENTIFICADOR CONTACTO"]
-  },
-      "priority": 5,
-      "identifier": "",
-      "window_one_end": doc["MAX VENTANA HORARIA 1"],
-      "window_two_end": "",
-      "dispatch_center": "entrega24",
-      "window_one_start": doc["MIN VENTANA HORARIA 1"],
-      "window_two_start": "",
-      "max_dispatch_date":  doc["FECHA MAX ENTREGA"],
-      "min_dispatch_date": doc["FECHA MIN ENTREGA"]
-    }
-      //doc.data()
-      jd.push(stop)
-  });
-return jd
-}
-
-const actualizar = ()=>{
-  fire.firestore().collection("pedidos").where("status","==",4)
-                .get()
-                .then((querySnapshot) => {
-                  querySnapshot.forEach((doc) => {
-                    fire.firestore().collection("pedidos").doc( doc.data().uid).update({status:9})
-                    
-                  })
-                })
-
-}
-
-const subir = async () =>{
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-  
-    today = dd + '-' + mm + '-' + yyyy;
-   
-
-    
-    var jsson;
-    var jd = []
-    await fire.firestore().collection("pedidos").where("status","==",4)
-    .get()
-    .then((querySnapshot) => {
-       
-      querySnapshot.forEach((doc) => {
-         
-        var obect = 
-        {"N° DOCUMENTO" : doc.data().uid,"LATITUD":"", "LONGITUD":"",
-        "DIRECCION":doc.data()["DIRECCION"], "NOMBRE ITEM":doc.data()["NOMBRE PROD"] , "CANTIDAD": doc.data()["CANTIDAD"],
-        "CODIGO ITEM":doc.data().uid, "FECHA MIN ENTREGA" : doc.data()["FECHA MIN ENTREGA"], "FECHA MAX ENTREGA": doc.data()["FECHA MAX ENTREGA"],
-        "MIN VENTANA HORARIA 1":doc.data().min_horario , "MAX VENTANA HORARIA 1":doc.data().max_horario, "MIN VENTANA HORARIA 2":"",
-        "MAX VENTANA HORARIA 2":"", "COSTO ITEM":"", "CAPACIDAD UNO":"",
-        "CAPACIDAD DOS":"", "SERVICE TIME":"", "IMPORTANCIA":"",
-        "IDENTIFICADOR CONTACTO":doc.data().cliente, "NOMBRE CONTACTO":doc.data()["NOMBRE CONTACTO"], "TELEFONO":doc.data()["TELEFONO"],
-        "EMAIL CONTACTO": doc.data()["CORREO"], "CT ORIGEN":doc.data().ct_origen}
-          //doc.data()
-          jd.push(obect)
-      });
-      //jsson = jd.map(Object.values)
-
-      var wb = XLSX.utils.book_new();
-      wb.Props = {
-          Title: "Pedidos subidos en"+" " +today,
-          Author: "Pedidos 24",
-          CreatedDate: new Date()
-      };
-      wb.SheetNames.push("Pedidos");
-
-      var ws = XLSX.utils.json_to_sheet(jd,{header: ["N° DOCUMENTO" ,"LATITUD", "LONGITUD",
-      "DIRECCION", "NOMBRE ITEM", "CANTIDAD","CODIGO ITEM", "FECHA MIN ENTREGA", "FECHA MAX ENTREGA",
-      "MIN VENTANA HORARIA 1" , "MAX VENTANA HORARIA 1", "MIN VENTANA HORARIA 2",
-      "MAX VENTANA HORARIA 2", "COSTO ITEM", "CAPACIDAD UNO",
-      "CAPACIDAD DOS", "SERVICE TIME", "IMPORTANCIA",
-      "IDENTIFICADOR CONTACTO", "NOMBRE CONTACTO", "TELEFONO",
-      "EMAIL CONTACTO", "CT ORIGEN"]});
-      wb.Sheets["Pedidos"] = ws;
-      var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-  
-      var buf = new ArrayBuffer(wbout.length); //convert s to arrayBuffer
-      var view = new Uint8Array(buf);  //create uint8array as viewer
-      for (var i=0; i<wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xFF; 
-      saveAs(new Blob([buf],{type:"application/octet-stream"}), 'pedidos-'+today+'.xlsx');
-
-
-    })
-    .catch((error) => {
-      console.log("Error getting documents: ", error);
-    });
-
-   
-    var st =subirapi(jd,today)
-    var body = `{"name": "Stop Group Test","stops": ${JSON.stringify(st)}}`
-
-
-    var sURL = 'https://api.planner.beetrack.com/v1/stop_groups' ; 
-    var auth = '12a34bcdef5g6789h012ij34567k890123lmn45o67p89q0rs1tuv23wxy456z78' ;
-    
-    var request = require('request');
-    var options = {
-      'method': 'POST',
-      'url': sURL,
-      'headers': {
-        'Authorization': "entrega24",
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    };
-
-    request(options, function (error, response) {
-     
-    });
-    actualizar();
-}
-
 const Dashboard = () => {
   const { user,tipo } = useContext(AuthContext);
   const [data, setData] = useState([]);
+  const [datacsv, setDatacsv] = useState([]);
   const [datauser, setDatauser] = useState(false);
   const [loading,setloding] = useState(true);
   
   const [modal, setModal] = useState(false);
   
   const [details, setDetails] = useState([])
+  
+  const csvLinkEl = React.createRef();
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = dd + '-' + mm + '-' + yyyy;
+  const encabezados = [
+    { label: "Cliente", key: "Cliente" },
+    { label: "Consignatario", key: "Consignatario" },
+    { label: "Referencia", key: "Referencia" },
+    { label: "ID Sitio de Carga", key: "ID Sitio de Carga" },
+    { label: "Nombre Sitio de Carga", key: "Nombre Sitio de Carga" },
+    { label: "ID Sitio de Entrega", key: "ID Sitio de Entrega" },
+    { label: "Nombre Sitio de Entrega", key: "Nombre Sitio de Entrega" },
+    { label: "Dirección Sitio de Entrega", key: "Dirección Sitio de Entrega" },
+    { label: "Latitud Sitio de Entrega", key: "Latitud Sitio de Entrega" },
+    { label: "Longitud Sitio de Entrega", key: "Longitud Sitio de Entrega" },
+    { label: "Horario desde en Sitio de Entrega", key: "Horario desde en Sitio de Entrega" },
+    { label: "Tiempo estimado para la entrega", key: "Tiempo estimado para la entrega" },
+    { label: "Notas relevantes a la entrega", key: "Notas relevantes a la entrega" },
+    { label: "SKU", key: "SKU" },
+    { label: "Descripción", key: "Descripción" },
+    { label: "Peso", key: "Peso" },
+    { label: "Cantidad", key: "Cantidad" },
+    { label: "ID Agente de at. cliente", key: "ID Agente de at. cliente" },
+    { label: "Fecha de entrega", key: "Fecha de entrega" }
+  ];
 
   useEffect(
     () => {
@@ -243,16 +115,9 @@ const Dashboard = () => {
   
       fetch();
 
-        
-   
-     
-     
-
     },
     []
   );
-
- 
 
 
   const buscar = async  () =>{
@@ -269,7 +134,7 @@ const Dashboard = () => {
     .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             
-            newdatauser[doc.data().user_uid] = { nombre: doc.data().nombre}
+            newdatauser[doc.data().user_uid] = { nombre: doc.data().nombre,clienteid: doc.data().clienteid}
     
             newdatauserarray.push({nombre:doc.data().nombre, uid:doc.data().user_uid})
         });
@@ -290,6 +155,7 @@ const Dashboard = () => {
                       
                         var dd = {
                           cliente_nombre: newdatauser[doc.data().cliente].nombre,
+                          cliente_id: newdatauser[doc.data().cliente].clienteid,
                           ...doc.data()
                         }
                         newdata.push( dd)
@@ -298,19 +164,93 @@ const Dashboard = () => {
                   })
                   .catch((error) => {
                     console.log("Error getting documents: ", error);
-                  });
-
-               
-            
-             
+                  });       
 
     //termina
     setloding(false)
+    var contenido = []
+         
+    newdata.forEach((doc) => {
+         
+      var obect = 
+      {"Cliente" : doc.cliente_id,
+      "Consignatario":doc.consignatario,
+      "Referencia":doc.uid,
+      "ID Sitio de Carga":"",
+      "Nombre Sitio de Carga":"",
+      "ID Sitio de Entrega":doc["TELEFONO"] == "" || doc["TELEFONO"] == undefined  ?  doc.uid:doc["TELEFONO"],
+      "Nombre Sitio de Entrega":"",
+      "Dirección Sitio de Entrega":doc["DIRECCION"].replace(/"/g, ''),
+      "Latitud Sitio de Entrega":doc["LATITUD"], 
+      "Longitud Sitio de Entrega":doc["LONGITUD"],
+      "Horario desde en Sitio de Entrega":"",
+      "Horario hasta en Sitio de Entrega": "",
+      "Tiempo estimado para la entrega":20, 
+      "Notas relevantes a la entrega" : doc["NOTAS"] == "." ? "": doc["NOTAS"], 
+      "SKU": doc.uid,
+      "Descripción":doc["DESCRIPCION"], 
+      "Peso":doc.peso, 
+      "Cantidad":doc["CANTIDAD"],
+      "ID Agente de at. cliente":"", 
+      "Fecha de entrega":doc["FECHA MIN ENTREGA"]
+      }
+        //doc.data()
+        contenido.push(obect)
+    });
+    setDatacsv(contenido)
   return newdata
     
   }
-  const toggleDetails = (index) => {
+
+
+  const actualizar = ()=>{
+    fire.firestore().collection("pedidos").where("status","==",4).get()
+                  .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                      fire.firestore().collection("pedidos").doc( doc.data().uid).update({status:9})
+                      
+                    })
+                  })
+  
+  }
+  
+  const subir = async () =>{
+    console.log(datacsv);
+        //jsson = contenido.map(Object.values)
+  
+       /*  var wb = XLSX.utils.book_new();
+        wb.Props = {
+            Title: "Pedidos subidos en"+" " +today,
+            Author: "Pedidos 24",
+            CreatedDate: new Date()
+        };
+        wb.SheetNames.push("Pedidos");
+  
+        var ws = XLSX.utils.json_to_sheet(contenido,{header: ["N° DOCUMENTO" ,"LATITUD", "LONGITUD",
+        "DIRECCION", "NOMBRE ITEM", "CANTIDAD","CODIGO ITEM", "FECHA MIN ENTREGA", "FECHA MAX ENTREGA",
+        "MIN VENTANA HORARIA 1" , "MAX VENTANA HORARIA 1", "MIN VENTANA HORARIA 2",
+        "MAX VENTANA HORARIA 2", "COSTO ITEM", "CAPACIDAD UNO",
+        "CAPACIDAD DOS", "SERVICE TIME", "IMPORTANCIA",
+        "IDENTIFICADOR CONTACTO", "NOMBRE CONTACTO", "TELEFONO",
+        "EMAIL CONTACTO", "CT ORIGEN"]});
+        wb.Sheets["Pedidos"] = ws;
+        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
     
+        var buf = new ArrayBuffer(wbout.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i=0; i<wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xFF; 
+        saveAs(new Blob([buf],{type:"application/octet-stream"}), 'pedidos-'+today+'.xlsx');
+   */
+  
+      csvLinkEl.current.link.click();
+      actualizar();
+      setModal(false) 
+  }
+  
+
+
+  const toggleDetails = (index) => {
+   
     const position = details.indexOf(index)
     let newDetails = details.slice()
     if (position !== -1) {
@@ -376,7 +316,7 @@ const Dashboard = () => {
                    
                 {item.status === 0 ? 'Por recoger':item.status === 1 ? 'En transito':  
                     item.status === 3 ? 'Entregados':item.status === 4 ? 'Aceptados':  item.status === 5 ? 'Rechazados':item.status === 6 ? 'Devuelto':
-                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido a beetrack'}
+                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido a Fitter'}
                 </CBadge>
                 </td>
             ),
@@ -433,6 +373,12 @@ const Dashboard = () => {
                 <CButton color="primary" onClick={() => subir()}>Si</CButton>
               </CModalFooter>
             </CModal>
+            <CSVLink
+              headers={encabezados}
+              filename={"Fitter"+today+".csv"}
+              data={datacsv}
+              ref={csvLinkEl}
+        />
     </>
   )
 }
