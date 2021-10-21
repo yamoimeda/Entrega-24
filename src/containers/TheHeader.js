@@ -70,7 +70,7 @@ const TheHeader = () => {
       </CHeaderNav>
 
       {tipo === 0 && <CButton onClick={()=> {subir()}} className="px-3" size="sm" color="success" className="ml-1">
-                        Subir a beetrack
+                        Subir a fitter
                     </CButton>}
 
       <CHeaderNav className="px-3">

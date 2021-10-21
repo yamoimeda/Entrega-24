@@ -223,6 +223,8 @@ useEffect(
        setModalerr(true)
        console.log(error)
      });
+
+     setModaledit(false)
     }
     
 
@@ -400,7 +402,7 @@ if(loading){
                     
                 {item.status === 0 ? 'Por recoger':item.status === 1 ? 'En transito':  
                     item.status === 3 ? 'Entregados':item.status === 4 ? 'Aceptados':  item.status === 5 ? 'Rechazados':item.status === 6 ? 'Devuelto':
-                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido abeetrack'}
+                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido a Fitter'}
                 </CBadge>
                 </td>
             ),
@@ -523,7 +525,7 @@ if(loading){
                                 <option value={0}>Por recoger</option>
                                 <option value={1}>En transito</option>
                                 <option value={7}>No entregado</option>
-                                 <option value={9}>Subido a beetrack</option>
+                                 <option value={9}>Subido a fitter</option>
                         
                             </CSelect>
                         </CCol>

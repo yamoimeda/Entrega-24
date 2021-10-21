@@ -329,7 +329,7 @@ useEffect(
                    
                 {item.status === 0 ? 'Por recoger':item.status === 1 ? 'En transito':  
                     item.status === 3 ? 'Entregados':item.status === 4 ? 'Aceptados':  item.status === 5 ? 'Rechazados':item.status === 6 ? 'Devuelto':
-                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido a beetrack'}
+                    item.status === 7 ? 'No entregado':item.status === 8 ? 'En espera':'subido a fiteer'}
                 </CBadge>
                 </td>
             ),
