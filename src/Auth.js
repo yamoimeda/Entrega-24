@@ -2,6 +2,11 @@ import React, {createContext, useEffect, useState} from "react";
 import Cookies from "js-cookie";
 import fire from './firebase';
 import {setup} from './views/control/zebrasetuo';
+import {
+	CCol,
+	CRow,
+	CSpinner
+  } from '@coreui/react';
 export const AuthContext = createContext({
   user: null, isAuth: null, login: () => {
   }, logout: () => {
@@ -50,31 +55,26 @@ function AuthProvider({ children }) {
         //const userCookie = Cookies.get('user');
         if (user){
           login(user.refreshToken,user.uid)
-         
-          setLoading(false);
-
-          fire.firestore().collection("usuarios").where("user_uid", "==", user.uid)
-        .get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                setphoto(doc.data().photo);
-                setTipo(doc.data().tipo)
-            });
-            
-        })
-        .catch((error) => {
-            console.log("Error getting documents: ", error);
-        });
-       
-    
+          fire
+          .firestore()
+          .collection("usuarios")
+          .where("user_uid", "==", user.uid)
+          .get()
+          .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                  // doc.data() is never undefined for query doc snapshots
+                  setphoto(doc.data().photo);
+                  setTipo(doc.data().tipo)
+              });
+            setLoading(false);
+          })
+          .catch((error) => {
+              console.log("Error getting documents: ", error);
+          });
           // sessionStorage.setItem('token', JSON.stringify(user.refreshToken));
           // sessionStorage.setItem('uid', JSON.stringify(user.uid));
-         
-          
           return ;
         } else{
-         
           setLoading(false);
           setIsAuth(false);
         }
@@ -111,11 +111,15 @@ function AuthProvider({ children }) {
   };
 
   if (loading) {
-    return   <div className="pt-3 text-center">
-    <div className="sk-spinner sk-spinner-pulse">
-    
-    </div>
-  </div>
+    return  <>
+        <div className="d-flex justify-content-center align-items-center" style={{height:"200px"}}>
+            <CRow>
+				<CCol>
+					<CSpinner variant="grow"/>
+				</CCol>
+            </CRow>
+		</div>
+    </>
   ;
   }
   return (

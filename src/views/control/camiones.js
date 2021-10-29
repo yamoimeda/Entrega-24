@@ -31,7 +31,7 @@ import fire from '../../firebase';
 import Cookies from "js-cookie";
 import { AuthContext } from "../../Auth";
 import { useLocation } from "react-router-dom";
-import {imprimir} from './imprimir';
+import {imprimir} from '../../funciones/imprimir';
 
 import XLSX from 'xlsx';
 import { saveAs } from 'file-saver'

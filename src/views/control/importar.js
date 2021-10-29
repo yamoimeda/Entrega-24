@@ -22,7 +22,7 @@ class importar extends Component {
     this.onDrop = (files) => {
         this.getAsText(files[0]);
         this.setState({files})
-        
+        console.log(files);
     };
     this.state = {
       files: [],
@@ -61,8 +61,8 @@ class importar extends Component {
      
       this.setState({files:[]})
       this.setState({alert:<CAlert color="danger">
-      Este documento no tiene todos los campos requeridos.
-      Campos faltantes: {faltantes}
+      Este documento no tiene todas las Columnas requeridos.
+      Columnas faltantes: {faltantes}
       </CAlert> })
 
       setTimeout(() => {
@@ -123,24 +123,51 @@ class importar extends Component {
     var allTextLines = csv.split(/\r\n|\n/);
     var lines = [];
 	
-    let requeridos =  ["DIRECCION","LATITUD","LONGITUD",
+    let requeridos =  ["DIRECCION",
     "DESCRIPCION","CANTIDAD","TELEFONO","CORREO",
-    "NOMBRE PROD","NOMBRE CONTACTO","FECHA MIN ENTREGA","NOTAS"]
+    "NOMBRE PROD","NOMBRE CONTACTO"]
 
     //first line of csv
     var keys = allTextLines.shift().split(',');
-      while (allTextLines.length) {
+	let linea = 2
+	if (allTextLines.length <= 1 ){
+		this.setState({files:[]})
+		this.setState({alert:<CAlert color="danger">
+		El archivo esta vacio
+		
+		</CAlert> })
+		setTimeout(() => {
+			this.setState({alert:undefined})
+		}, 25000);
+		return
+	}
+    while (allTextLines.length - 1) {
+          
         var arr = allTextLines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        if (arr.length<11){
-          break
-        }
+		for(var i = 0; i < keys.length; i++){
+				if (requeridos.includes(keys[i])){
+						
+					if( arr[i] === ''){
+						this.setState({files:[]})
+						this.setState({alert:<CAlert color="danger">
+						El archivo Tiene un error en la linea {linea}. El Campo {keys[i]} esta vacio
+						
+						</CAlert> })
+						setTimeout(() => {
+							this.setState({alert:undefined})
+						}, 25000);
+						return
+					}
+				}
+			}
 
+			
         var obj = {};
         for(var i = 0; i < keys.length; i++){
           
-          if (requeridos.includes(keys[i])){
             if (keys[i] == "FECHA MIN ENTREGA" ){
-              if (keys[i]){
+				console.log(arr[i]);
+              if (arr[i] != ''){
                 obj[keys[i]] = arr[i];
               }else{
                 obj[keys[i]] = manana;
@@ -154,13 +181,11 @@ class importar extends Component {
                 obj[keys[i]] = arr[i];
               }
              
-            }
-            
-          }
-            
-	}
+            }     
+		}
         lines.push(obj);
-    }
+		linea = linea + 1    
+	}
         this.setState({data:lines})
 
   }
@@ -246,6 +271,7 @@ class importar extends Component {
               orden_uid:dataorden.id,
               peso:"Sin definir",
               consignatario: consig,
+			  tamano:1,
               ...ped
           })
           .catch((error) => {

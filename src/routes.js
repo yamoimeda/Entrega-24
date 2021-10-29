@@ -1,10 +1,10 @@
 import React from 'react';
 
 const Control = React.lazy(() => import('./views/control/control'));
-const Pedidos_cliente = React.lazy(() => import('./views/control/pedidos_cliente'));
-const Pedidos_dia = React.lazy(() => import('./views/control/pedidos_dia'));
-const Pedidos_status = React.lazy(() => import('./views/control/pedidos_status'));
-const Pedidos = React.lazy(() => import('./views/control/pedidos'));
+const Pedidos_cliente = React.lazy(() => import('./views/control/pedidos/pedidos_cliente'));
+const Pedidos_dia = React.lazy(() => import('./views/control/pedidos/pedidos_dia'));
+const Pedidos_status = React.lazy(() => import('./views/control/pedidos/pedidos_status'));
+const Pedidos = React.lazy(() => import('./views/control/pedidos/pedidos'));
 const Importar = React.lazy(() => import('./views/control/importar'));
 const Salir = React.lazy(() => import('./views/control/Salir'));
 const Registrar = React.lazy(() => import('./views/control/registrar'));
@@ -13,7 +13,7 @@ const Ordenes_dia = React.lazy(() => import('./views/control/ordenes/ordenes_dia
 const Ordenes_cliente = React.lazy(() => import('./views/control/ordenes/ordenes_cliente'));
 const Ordenes_status = React.lazy(() => import('./views/control/ordenes/ordenes_status'));
 
-const Pedidos_orden = React.lazy(() => import('./views/control/pedidos_orden'));
+const Pedidos_orden = React.lazy(() => import('./views/control/pedidos/pedidos_orden'));
 const Subir_betrack = React.lazy(() => import('./views/control/subir_beetrack'));
 const Camiones = React.lazy(() => import('./views/control/camiones'));
 
