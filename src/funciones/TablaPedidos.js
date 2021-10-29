@@ -710,7 +710,7 @@ const Tables = ({data}) => {
                                           <CInputGroup className="mb-3">
                                             <CInputGroupPrepend>
                                               <CInputGroupText>
-											  Cantidad>
+											  Cantidad
                                               </CInputGroupText>
                                             </CInputGroupPrepend>
                 
